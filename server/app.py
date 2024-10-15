@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, render_as_batch=True)
 
 db.init_app(app)
 
@@ -20,19 +20,57 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    return ''
+
+    # bakeries = []
+    # for baker in Bakery.query.all():
+    #     baker_dict = baker.to_dict()
+    #     bakeries.append(baker_dict)
+
+    bakeries = [bakery.to_dict() for bakery in Bakery.query.all()]
+
+    response = make_response(
+        bakeries,
+        200
+    )
+
+    return response
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+    single_bakery = Bakery.query.filter(Bakery.id == id).first()
+
+    # single_bakery = [bakery.to_dict() for bakery in Bakery.query.filter(Bakery.id == id).first()]
+    bakery_dict = single_bakery.to_dict()
+
+    response = make_response(
+        bakery_dict,
+        200
+    )
+
+    return response
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    return ''
+    # baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
+
+    baked_goods= [baked_good.to_dict() for baked_good in BakedGood.query.order_by(BakedGood.price.desc()).all()]
+
+    response = make_response(
+        baked_goods,
+        200
+    )
+
+    return response
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+    most_expensive = BakedGood.query.order_by(BakedGood.price.desc()).first()
+
+    response = make_response(
+        most_expensive.to_dict(),
+        200
+    )
+    return response
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
